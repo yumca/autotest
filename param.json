@@ -1,0 +1,50 @@
+[
+    {
+        "title": "test",
+        "typ": "post",
+        "url": "",
+        "header": {
+            "token": {
+                "type": "default",
+                "default": ""
+            },
+            "content-type": {
+                "type": "default",
+                "default": ""
+            }
+        },
+        "param": {
+            "post": {
+                "flow_code": {
+                    "type": "string",
+                    "string": "max@10"
+                }
+            },
+            "get": {}
+        },
+        "result": {
+            "code": {
+                "type": "default|object|array|objectjson|arrayjson|string#len@10#max@10|int#len@5|datetime#Y-m-d H:i:s|timestamp"
+            },
+            "message": {
+                "type": "default|object|array|objectjson|arrayjson|string#len@10#max@10|int#len@5|datetime#Y-m-d H:i:s|timestamp"
+            },
+            "time": {
+                "type": "default|object|array|objectjson|arrayjson|string#len@10#max@10|int#len@5|datetime#Y-m-d H:i:s|timestamp"
+            },
+            "data": {
+                "type": "default|object|array|objectjson|arrayjson|string#len@10#max@10|int#len@5|datetime#Y-m-d H:i:s|timestamp",
+                "array": {
+                    "a": {
+                        "type": "default|object|array|objectjson|arrayjson|string#len@10#max@10|int#len@5|datetime#Y-m-d H:i:s|timestamp",
+                        "object": {
+                            "b": {
+                                "type": "default|object|array|objectjson|arrayjson|string#len@10#max@10|int#len@5|datetime#Y-m-d H:i:s|timestamp"
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+]
