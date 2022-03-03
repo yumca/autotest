@@ -25,9 +25,18 @@ func main() {
 	if err != nil {
 		panic(err.Error())
 	}
-	fmt.Printf("%+v", param)
-	//根据参数结构生成数据
-	// for pk, pv := range param {
+	// fmt.Printf("%+v\n", param)
 
-	// }
+	//根据参数结构生成数据
+	for pk, pv := range param {
+		p_header := pv.Header.(map[string]interface{})
+		header := library.HeaderParse(p_header, 1)
+		fmt.Println("pk:", pk, "\nheader:", header)
+		p_param := pv.Param.(map[string]interface{})
+		post := library.ParamParse(p_param["post"].(map[string]interface{}), 1)
+		get := library.ParamParse(p_param["get"].(map[string]interface{}), 1)
+		fmt.Println("pk:", pk, "\npost:", post, "get", get)
+		// p_result := pv.Result.(map[string]interface{})
+		// result := library.ParamParse(p_header, 1)
+	}
 }

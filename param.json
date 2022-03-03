@@ -10,14 +10,69 @@
             },
             "content-type": {
                 "type": "default",
-                "default": ""
+                "default": "application/json"
             }
         },
         "param": {
             "post": {
-                "flow_code": {
+                "default": {
+                    "type": "default",
+                    "default": "max@10"
+                },
+                "string": {
                     "type": "string",
                     "string": "max@10"
+                },
+                "int": {
+                    "type": "int",
+                    "int": "min@10"
+                },
+                "datetime": {
+                    "type": "datetime",
+                    "datetime": "Y-m-d H:i"
+                },
+                "timestamp": {
+                    "type": "timestamp",
+                    "timestamp": ""
+                },
+                "object": {
+                    "type": "object",
+                    "object": {
+                        "title": {
+                            "type": "string",
+                            "string": "min@10"
+                        },
+                        "data": {
+                            "type": "object",
+                            "object": {
+                                "title2": {
+                                    "type": "string",
+                                    "string": "min@10"
+                                }
+                            }
+                        }
+                    }
+                },
+                "array": {
+                    "type": "array",
+                    "array": {
+                        "type": "object",
+                        "object": {
+                            "arraytitle": {
+                                "type": "string",
+                                "string": "min@10"
+                            },
+                            "arraydata": {
+                                "type": "object",
+                                "object": {
+                                    "arraydata2": {
+                                        "type": "default",
+                                        "default": "lakjsdlkas"
+                                    }
+                                }
+                            }
+                        }
+                    }
                 }
             },
             "get": {}
