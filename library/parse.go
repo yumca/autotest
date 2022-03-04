@@ -36,6 +36,9 @@ func HeaderParse(h map[string]interface{}, deep int) (header map[string]string) 
 }
 
 func ParamParse(p map[string]interface{}, deep int) (param map[string]interface{}) {
+	if len(p) < 1 {
+		return
+	}
 	param = make(map[string]interface{}, len(p))
 	for pk, pv := range p {
 		tmp := pv.(map[string]interface{})
