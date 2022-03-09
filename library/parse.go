@@ -7,6 +7,8 @@ import (
 	"time"
 )
 
+var snow_seed int64 = 0
+
 func HeaderParse(h map[string]interface{}, deep int) (header map[string]string) {
 	header = make(map[string]string, len(h))
 	for hk, hv := range h {
@@ -62,7 +64,7 @@ func ParamParse(p map[string]interface{}, deep int) (param map[string]interface{
 				case "datetime":
 					param[pk] = ParseDatetime(tmp["datetime"].(string))
 				case "timestamp":
-					param[pk] = time.Now().Unix()
+					param[pk] = int(time.Now().Unix())
 				default:
 					panic("field：" + pk + ",错误的type：" + tmp["type"].(string))
 				}
@@ -75,8 +77,8 @@ func ParamParse(p map[string]interface{}, deep int) (param map[string]interface{
 	return
 }
 
-func ResultParse(r interface{}) {
-	switch r.(type) {
+func ResultParse(format, data interface{}) {
+	switch format.(type) {
 	case string:
 		//add your operations
 	case int8:
@@ -84,6 +86,7 @@ func ResultParse(r interface{}) {
 	case int16:
 		//add your operations
 	case map[string]string:
+	case map[string]interface{}:
 	default:
 		// return errors.New("no this type")
 	}
@@ -127,7 +130,7 @@ func ParseInt(s string) int {
 func ParseFormat(format1 []string) (slen_max int, slen_min int) {
 	// var format2 = make(map[string]string, len(format1))
 	slen_max = 26
-	slen_min = 1
+	slen_min = 0
 	if len(format1) > 0 {
 		for _, fv := range format1 {
 			tmpfv := strings.Split(fv, "@")
@@ -148,16 +151,19 @@ func ParseFormat(format1 []string) (slen_max int, slen_min int) {
 func ParseArray(obj map[string]interface{}, deep int) interface{} {
 	len := RandInt(1, 1)
 	arr2 := make([]interface{}, len)
-	for ak := range arr2 {
-		arr := ParamParse(obj[obj["type"].(string)].(map[string]interface{}), deep)
-		arr2[ak] = arr
+	if len > 0 {
+		for ak := range arr2 {
+			arr := ParamParse(obj[obj["type"].(string)].(map[string]interface{}), deep)
+			arr2[ak] = arr
+		}
 	}
 	return arr2
 }
 
 func RandChi(len int) string {
 	a := make([]rune, len)
-	r := rand.New(rand.NewSource(time.Now().UnixNano()))
+	snow_seed++
+	r := rand.New(rand.NewSource(time.Now().UnixNano() + snow_seed))
 	for i := range a {
 		// time.Sleep(time.Nanosecond)
 		// rand.Seed(time.Now().UnixNano())
@@ -167,12 +173,21 @@ func RandChi(len int) string {
 }
 
 func RandString(max, min int) string {
-	if min < 1 {
-		panic("RandString随机数最小长度不能小于1")
+	snow_seed++
+	r := rand.New(rand.NewSource(time.Now().UnixNano() + snow_seed))
+	len := 0
+	if max < 1 || max-min < 0 {
+		len = 0
+	} else if (max - min) == 0 {
+		len = r.Intn(max + 1)
+	} else {
+		len = r.Intn(max-min+1) + min
 	}
-	r := rand.New(rand.NewSource(time.Now().UnixNano()))
-	len := r.Intn(max-min) + min
-	r2 := rand.New(rand.NewSource(time.Now().UnixNano()))
+	if len < 1 {
+		return ""
+	}
+	snow_seed++
+	r2 := rand.New(rand.NewSource(time.Now().UnixNano() + snow_seed))
 	bytes := make([]byte, len)
 	for i := 0; i < len; i++ {
 		b := r2.Intn(26) + 65
@@ -182,15 +197,19 @@ func RandString(max, min int) string {
 }
 
 func RandInt(max, min int) int {
-	if min < 1 {
-		panic("RandString随机数最小长度不能小于1")
-	}
-	r := rand.New(rand.NewSource(time.Now().UnixNano()))
+	snow_seed++
+	r := rand.New(rand.NewSource(time.Now().UnixNano() + snow_seed))
 	len := 0
-	if max-min < 1 {
-		len = min
+	if max < 1 || max-min < 0 {
+		len = 0
+	} else if (max - min) == 0 {
+		len = r.Intn(max + 1)
 	} else {
-		len = r.Intn(max-min) + min
+		len = r.Intn(max-min+1) + min
+	}
+
+	if len < 1 {
+		return 0
 	}
 	max_int := ""
 	for i := 0; i < len; i++ {
@@ -203,7 +222,8 @@ func RandInt(max, min int) int {
 		}
 	}
 
-	r2 := rand.New(rand.NewSource(time.Now().UnixNano()))
+	snow_seed++
+	r2 := rand.New(rand.NewSource(time.Now().UnixNano() + snow_seed))
 
 	max2, _ := strconv.Atoi(max_int)
 	min2, _ := strconv.Atoi(min_int)

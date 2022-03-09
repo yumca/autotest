@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"flag"
 	"fmt"
+	"strconv"
 )
 
 var ctx context.Context
@@ -30,29 +31,49 @@ func main() {
 
 	//根据参数结构生成数据
 	for pk, pv := range param {
+		url := pv.Url
 		p_header := pv.Header.(map[string]interface{})
 		header := library.HeaderParse(p_header, 1)
 		fmt.Println("pk:", pk, "\nheader:", header)
 		p_param := pv.Param.(map[string]interface{})
+		postString := ""
 		post := library.ParamParse(p_param["post"].(map[string]interface{}), 1)
 		if post != nil {
 			jsonData, err := json.Marshal(post)
 			if err != nil {
 				panic(err.Error())
 			}
-			postString := string(jsonData)
+			postString = string(jsonData)
 			fmt.Println("pk:", pk, "\npost:", postString)
 		}
 		get := library.ParamParse(p_param["get"].(map[string]interface{}), 1)
+		getString := ""
 		if get != nil {
-			jsonData, err := json.Marshal(get)
-			if err != nil {
-				panic(err.Error())
+			for gk, gv := range get {
+				switch gv.(type) {
+				case string:
+					getString += gk + "=" + gv.(string)
+				case int:
+					getString += gk + "=" + strconv.Itoa(gv.(int))
+				case map[string]interface{}:
+					jsonData, err := json.Marshal(gv)
+					if err != nil {
+						panic(err.Error())
+					}
+					getString += gk + "=" + string(jsonData)
+				}
 			}
-			getString := string(jsonData)
-			fmt.Println("pk:", pk, "\nget:", getString)
 		}
-		fmt.Println("pk:", pk, "\nget:", get)
+		if getString != "" {
+			url = url + "?" + getString
+		}
+		fmt.Println("pk:", pk, "\nurl:", url)
+		//请求接口
+		respBody, err := library.HttpRequest(pv.Typ, url, postString, header)
+		if err != nil {
+			panic(err.Error())
+		}
+		fmt.Printf("response data:%v\n", string(respBody))
 		// p_result := pv.Result.(map[string]interface{})
 		// result := library.ParamParse(p_header, 1)
 	}

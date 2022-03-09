@@ -1,18 +1,19 @@
 package library
 
 import (
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"net/http"
 	"strings"
 )
 
-func HttpRequest(method string, url string, data map[string]string, header map[string]string) {
+func HttpRequest(method string, url string, data string, header map[string]string) ([]byte, error) {
 	// data = `{"type":"10","msg":"hello."}`
-	if _, ok := data["get"]; ok {
-		url = url + "/" + data["get"]
-	}
-	request, err := http.NewRequest(strings.ToUpper(method), url, strings.NewReader(data["post"]))
+	// if _, ok := data["get"]; ok {
+	// 	url = url + "/" + data["get"]
+	// }
+	request, err := http.NewRequest(strings.ToUpper(method), url, strings.NewReader(data))
 	if err != nil {
 		panic("New post error:" + err.Error() + "\n")
 	}
@@ -31,9 +32,13 @@ func HttpRequest(method string, url string, data map[string]string, header map[s
 	resp, err := http.DefaultClient.Do(request)
 	if err != nil {
 		fmt.Printf("post data error:%v\n", err)
+		return nil, err
 	} else {
-		fmt.Println("post a data successful.")
-		respBody, _ := ioutil.ReadAll(resp.Body)
-		fmt.Printf("response data:%v\n", string(respBody))
+		if resp.StatusCode == 200 {
+			respBody, _ := ioutil.ReadAll(resp.Body)
+			return respBody, nil
+		} else {
+			return nil, errors.New("请求接口错误：" + resp.Status)
+		}
 	}
 }

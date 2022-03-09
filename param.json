@@ -2,7 +2,7 @@
     {
         "title": "test",
         "typ": "post",
-        "url": "",
+        "url": "http://dev.oa3.my:9003/bsap_adch_pnmg_v1/personnel/index",
         "header": {
             "token": {
                 "type": "default",
@@ -15,62 +15,31 @@
         },
         "param": {
             "post": {
-                "default": {
+                "current_page": {
                     "type": "default",
-                    "default": "max@10"
+                    "default": "1"
                 },
-                "string": {
-                    "type": "string",
-                    "string": "max@10"
+                "page_size": {
+                    "type": "default",
+                    "default": "10"
                 },
-                "int": {
-                    "type": "int",
-                    "int": "min@10"
-                },
-                "datetime": {
-                    "type": "datetime",
-                    "datetime": "Y-m-d H:i"
-                },
-                "timestamp": {
-                    "type": "timestamp",
-                    "timestamp": ""
-                },
-                "object": {
+                "condition": {
                     "type": "object",
                     "object": {
-                        "title": {
-                            "type": "string",
-                            "string": "min@10"
+                        "keword": {
+                            "type": "default",
+                            "string": "max@10",
+                            "default": "0"
                         },
-                        "data": {
-                            "type": "object",
-                            "object": {
-                                "title2": {
-                                    "type": "string",
-                                    "string": "min@10"
-                                }
-                            }
-                        }
-                    }
-                },
-                "array": {
-                    "type": "array",
-                    "array": {
-                        "type": "object",
-                        "object": {
-                            "arraytitle": {
-                                "type": "string",
-                                "string": "min@10"
-                            },
-                            "arraydata": {
-                                "type": "object",
-                                "object": {
-                                    "arraydata2": {
-                                        "type": "default",
-                                        "default": "lakjsdlkas"
-                                    }
-                                }
-                            }
+                        "comp_id": {
+                            "type": "default",
+                            "int": "max@1",
+                            "default": "0"
+                        },
+                        "depa_id": {
+                            "type": "default",
+                            "int": "max@1",
+                            "default": "0"
                         }
                     }
                 }
