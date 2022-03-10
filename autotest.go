@@ -73,7 +73,16 @@ func main() {
 		if err != nil {
 			panic(err.Error())
 		}
-		fmt.Printf("response data:%v\n", string(respBody))
+		// fmt.Printf("response data:%v\n", string(respBody))
+		var respData interface{}
+		errJson := json.Unmarshal(respBody, &respData)
+		if errJson != nil {
+			panic(errJson.Error())
+		}
+		t := fmt.Sprintf("%T", pv.Result)
+		fmt.Println(t == "map[string]interface {}")
+		// library.ResultParse(pv.Result, respData)
+		// result :=
 		// p_result := pv.Result.(map[string]interface{})
 		// result := library.ParamParse(p_header, 1)
 	}

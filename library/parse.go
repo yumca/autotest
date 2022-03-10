@@ -1,6 +1,7 @@
 package library
 
 import (
+	"fmt"
 	"math/rand"
 	"strconv"
 	"strings"
@@ -78,13 +79,24 @@ func ParamParse(p map[string]interface{}, deep int) (param map[string]interface{
 }
 
 func ResultParse(format, data interface{}) {
+	fmt.Sprintf("%#v", format)
+	// data_type := ""
+	// switch format.(type) {
+	// case string:
+	// 	data_type = "string"
+	// case int:
+	// 	data_type = "int"
+	// case map[string]string:
+	// 	data_type = "map[string]string"
+	// case map[string]interface{}:
+	// 	data_type = "map[string]interface{}"
+	// default:
+	// }
+
 	switch format.(type) {
 	case string:
 		//add your operations
-	case int8:
-		//add your operations
-	case int16:
-		//add your operations
+	case int:
 	case map[string]string:
 	case map[string]interface{}:
 	default:
