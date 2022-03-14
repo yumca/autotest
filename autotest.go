@@ -79,8 +79,8 @@ func main() {
 		if errJson != nil {
 			panic(errJson.Error())
 		}
-		t := fmt.Sprintf("%T", pv.Result)
-		fmt.Println(t == "map[string]interface {}")
+		t := fmt.Sprintf("%#v", respData)
+		fmt.Println(t)
 		// library.ResultParse(pv.Result, respData)
 		// result :=
 		// p_result := pv.Result.(map[string]interface{})

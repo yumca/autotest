@@ -1,6 +1,7 @@
 package library
 
 import (
+	"encoding/json"
 	"fmt"
 	"math/rand"
 	"strconv"
@@ -78,29 +79,77 @@ func ParamParse(p map[string]interface{}, deep int) (param map[string]interface{
 	return
 }
 
-func ResultParse(format, data interface{}) {
-	fmt.Sprintf("%#v", format)
-	// data_type := ""
-	// switch format.(type) {
-	// case string:
-	// 	data_type = "string"
-	// case int:
-	// 	data_type = "int"
-	// case map[string]string:
-	// 	data_type = "map[string]string"
-	// case map[string]interface{}:
-	// 	data_type = "map[string]interface{}"
-	// default:
+func ResultParse(format map[string]interface{}, data string) {
+	if len(format) < 1 {
+		return
+	}
+	dataType := strings.Replace(fmt.Sprintf("%T", data), " ", "", -1)
+	// if format["type"].(string) != dataType {
+	// 	panic("返回数据格式和预定义返回数据格式不符；formatType：" + format["type"].(string) + "；dataType：" + dataType)
 	// }
-
-	switch format.(type) {
-	case string:
-		//add your operations
-	case int:
-	case map[string]string:
-	case map[string]interface{}:
+	var respData interface{}
+	switch format["type"].(string) {
+	case "default":
+		if dataType != "string" {
+			panic("返回数据格式和预定义返回数据格式不符；formatType：" + format["type"].(string) + "；dataType：" + dataType)
+		}
+	case "string":
+		if dataType != "string" {
+			panic("返回数据格式和预定义返回数据格式不符；formatType：" + format["type"].(string) + "；dataType：" + dataType)
+		}
+	case "array":
+		errJson := json.Unmarshal([]byte(data), &respData)
+		if errJson != nil {
+			panic(errJson.Error())
+		}
+		dataType = strings.Replace(fmt.Sprintf("%T", respData), " ", "", -1)
+		if dataType != "[]interface{}" {
+			panic("返回数据格式和预定义返回数据格式不符；formatType：" + format["type"].(string) + "；dataType：" + dataType)
+		}
+	case "object":
+		errJson := json.Unmarshal([]byte(data), &respData)
+		if errJson != nil {
+			panic(errJson.Error())
+		}
+		dataType = strings.Replace(fmt.Sprintf("%T", respData), " ", "", -1)
+		if dataType != "map[string]interface{}" {
+			panic("返回数据格式和预定义返回数据格式不符；formatType：" + format["type"].(string) + "；dataType：" + dataType)
+		}
 	default:
-		// return errors.New("no this type")
+		panic("未知数据类型：" + format["type"].(string))
+	}
+	result := make(map[string]interface{}, len(format[format["type"].(string)].(map[string]interface{})))
+	for pk, pv := range format {
+		tmp := pv.(map[string]interface{})
+		if _, ok := tmp["type"]; ok {
+			if _, ok := tmp[tmp["type"].(string)]; ok {
+				switch tmp["type"].(string) {
+				case "default":
+					result[pk] = tmp["default"]
+				case "object":
+					result[pk] = ParamParse(tmp["object"].(map[string]interface{}), deep+1)
+				case "array":
+					result[pk] = ParseArray(tmp["array"].(map[string]interface{}), deep+1)
+				// case "objectjson":
+				// 	param[pk] = ParamParse(tmp)
+				// case "arrayjson":
+				// 	param[pk] = ParamParse(tmp)
+				case "string":
+					result[pk] = ParseString(tmp["string"].(string))
+				case "int":
+					result[pk] = ParseInt(tmp["int"].(string))
+				case "datetime":
+					result[pk] = ParseDatetime(tmp["datetime"].(string))
+				case "timestamp":
+					result[pk] = int(time.Now().Unix())
+				default:
+					panic("field：" + pk + ",错误的type：" + tmp["type"].(string))
+				}
+			}
+		}
+		// if _, ok := tmp[tmp["type"]]; ok {
+		// 	param[pk] = tmp[tmp["type"]]
+		// }
 	}
 }
 
