@@ -42,6 +42,13 @@
                             "default": "0"
                         }
                     }
+                },
+                "arr": {
+                    "type": "array",
+                    "array": {
+                        "type": "default",
+                        "default": "5454"
+                    }
                 }
             },
             "get": {}
@@ -61,6 +68,7 @@
                 "data": {
                     "type": "default|object|array|objectjson|arrayjson|string#len@10#max@10|int#len@5|datetime#Y-m-d H:i:s|timestamp",
                     "array": {
+                        "type": "default|object|array|objectjson|arrayjson|string#len@10#max@10|int#len@5|datetime#Y-m-d H:i:s|timestamp",
                         "a": {
                             "type": "default|object|array|objectjson|arrayjson|string#len@10#max@10|int#len@5|datetime#Y-m-d H:i:s|timestamp",
                             "object": {

@@ -79,69 +79,95 @@ func ParamParse(p map[string]interface{}, deep int) (param map[string]interface{
 	return
 }
 
-func ResultParse(format map[string]interface{}, data string) {
+func ResultParse(format map[string]interface{}, data interface{}, deep int) interface{} {
 	if len(format) < 1 {
-		return
+		return nil
 	}
 	dataType := strings.Replace(fmt.Sprintf("%T", data), " ", "", -1)
 	// if format["type"].(string) != dataType {
 	// 	panic("返回数据格式和预定义返回数据格式不符；formatType：" + format["type"].(string) + "；dataType：" + dataType)
 	// }
-	var respData interface{}
+	var parseData interface{}
+	var resData interface{}
 	switch format["type"].(string) {
 	case "default":
 		if dataType != "string" {
-			panic("返回数据格式和预定义返回数据格式不符；formatType：" + format["type"].(string) + "；dataType：" + dataType)
+			resData = "返回数据不符合预期；返回值：" + data.(string) + "；预期：" + format["default"].(string)
+			// panic("返回数据格式和预定义返回数据格式不符；formatType：" + format["type"].(string) + "；dataType：" + dataType)
+		} else {
+			resData = "返回值：" + data.(string) + "；预期：" + format["default"].(string)
 		}
 	case "string":
 		if dataType != "string" {
-			panic("返回数据格式和预定义返回数据格式不符；formatType：" + format["type"].(string) + "；dataType：" + dataType)
+			resData = "返回数据不符合预期；返回值：" + data.(string) + "；预期：" + format["default"].(string)
+			// panic("返回数据格式和预定义返回数据格式不符；formatType：" + format["type"].(string) + "；dataType：" + dataType)
+		} else {
+			resData = "返回值：" + data.(string) + "；预期：" + format["default"].(string)
 		}
 	case "array":
-		errJson := json.Unmarshal([]byte(data), &respData)
-		if errJson != nil {
-			panic(errJson.Error())
-		}
-		dataType = strings.Replace(fmt.Sprintf("%T", respData), " ", "", -1)
 		if dataType != "[]interface{}" {
-			panic("返回数据格式和预定义返回数据格式不符；formatType：" + format["type"].(string) + "；dataType：" + dataType)
+			errJson := json.Unmarshal([]byte(data.(string)), &parseData)
+			if errJson != nil {
+				panic(errJson.Error())
+			}
+			dataType = strings.Replace(fmt.Sprintf("%T", parseData), " ", "", -1)
+			if dataType != "[]interface{}" {
+				panic("返回数据格式和预定义返回数据格式不符；formatType：" + format["type"].(string) + "；dataType：" + dataType)
+			}
+		} else {
+			parseData = data
 		}
+		resData = ResultParse2(format, parseData.(map[string]interface{}), deep)
 	case "object":
-		errJson := json.Unmarshal([]byte(data), &respData)
-		if errJson != nil {
-			panic(errJson.Error())
+		if dataType != "[]interface{}" {
+			errJson := json.Unmarshal([]byte(data.(string)), &parseData)
+			if errJson != nil {
+				panic(errJson.Error())
+			}
+			dataType = strings.Replace(fmt.Sprintf("%T", parseData), " ", "", -1)
+			if dataType != "map[string]interface{}" {
+				panic("返回数据格式和预定义返回数据格式不符；formatType：" + format["type"].(string) + "；dataType：" + dataType)
+			}
+		} else {
+			parseData = data
 		}
-		dataType = strings.Replace(fmt.Sprintf("%T", respData), " ", "", -1)
-		if dataType != "map[string]interface{}" {
-			panic("返回数据格式和预定义返回数据格式不符；formatType：" + format["type"].(string) + "；dataType：" + dataType)
-		}
+		resData = ResultParse2(format, parseData.(map[string]interface{}), deep)
 	default:
 		panic("未知数据类型：" + format["type"].(string))
 	}
-	result := make(map[string]interface{}, len(format[format["type"].(string)].(map[string]interface{})))
-	for pk, pv := range format {
+	return resData
+}
+
+func ResultParse2(format, formatdata map[string]interface{}, deep int) (result map[string]interface{}) {
+	result = make(map[string]interface{}, len(format[format["type"].(string)].(map[string]interface{})))
+	for pk, pv := range format[format["type"].(string)].(map[string]interface{}) {
 		tmp := pv.(map[string]interface{})
 		if _, ok := tmp["type"]; ok {
 			if _, ok := tmp[tmp["type"].(string)]; ok {
 				switch tmp["type"].(string) {
 				case "default":
-					result[pk] = tmp["default"]
+					if tmp["default"] != formatdata[pk] {
+						result[pk] = "返回数据不符合预期；返回值：" + formatdata[pk].(string) + "；预期：" + tmp["default"].(string)
+					} else {
+						result[pk] = "返回值：" + formatdata[pk].(string) + "；预期：" + tmp["default"].(string)
+					}
 				case "object":
-					result[pk] = ParamParse(tmp["object"].(map[string]interface{}), deep+1)
+					result[pk] = ResultParse2(tmp["object"].(map[string]interface{}), formatdata[pk].(map[string]interface{}), deep+1)
 				case "array":
-					result[pk] = ParseArray(tmp["array"].(map[string]interface{}), deep+1)
+					result[pk] = ResultParse2(tmp["array"].(map[string]interface{}), formatdata[pk].(map[string]interface{}), deep+1)
 				// case "objectjson":
 				// 	param[pk] = ParamParse(tmp)
 				// case "arrayjson":
 				// 	param[pk] = ParamParse(tmp)
 				case "string":
-					result[pk] = ParseString(tmp["string"].(string))
+					result[pk] = ResultParseString(tmp["string"].(string), formatdata[pk].(string))
 				case "int":
-					result[pk] = ParseInt(tmp["int"].(string))
-				case "datetime":
-					result[pk] = ParseDatetime(tmp["datetime"].(string))
-				case "timestamp":
-					result[pk] = int(time.Now().Unix())
+					result[pk] = ResultParseString(tmp["string"].(string), formatdata[pk].(string))
+				// case "datetime":
+				// 	result[pk] = ParseDatetime(tmp["datetime"].(string))
+				// case "timestamp":
+				// 	result[pk] = ResultParseString(tmp["string"].(string), formatdata[pk].(string))
+				// 	result[pk] = int(time.Now().Unix())
 				default:
 					panic("field：" + pk + ",错误的type：" + tmp["type"].(string))
 				}
@@ -151,6 +177,7 @@ func ResultParse(format map[string]interface{}, data string) {
 		// 	param[pk] = tmp[tmp["type"]]
 		// }
 	}
+	return
 }
 
 func ParseDatetime(datetime string) string {
@@ -291,4 +318,31 @@ func RandInt(max, min int) int {
 	int2 := r2.Intn(max2-min2) + min2
 
 	return int2
+}
+
+func ResultParseString(format, data string) string {
+	r := ""
+	format1 := strings.Split(format, "|")
+	slen_max, slen_min := ParseFormat(format1)
+	if len(data) < slen_min {
+		r = r + "返回数据长度小于预期最小长度；"
+	}
+	if len(data) > slen_max {
+		r = r + "返回数据长度大于预期最大长度；"
+	}
+	r = r + "返回值：" + data + "；预期：" + format
+	// var format2 = make(map[string]string, len(format1))
+	return r
+}
+
+func ResultParseArray(format map[string]interface{}, obj []interface{}, deep int) interface{} {
+	obj_len := len(obj)
+	arr2 := make([]interface{}, obj_len)
+	if obj_len > 0 {
+		for ok, ov := range obj {
+			arr2[ok] = ResultParse(format, ov, deep)
+			// arr2[ak] = arr
+		}
+	}
+	return arr2
 }
