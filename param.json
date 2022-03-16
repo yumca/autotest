@@ -15,39 +15,44 @@
         },
         "param": {
             "post": {
-                "current_page": {
-                    "type": "default",
-                    "default": "1"
-                },
-                "page_size": {
-                    "type": "default",
-                    "default": "10"
-                },
-                "condition": {
-                    "type": "object",
-                    "object": {
-                        "keword": {
-                            "type": "default",
-                            "string": "max@10",
-                            "default": "0"
-                        },
-                        "comp_id": {
-                            "type": "default",
-                            "int": "max@1",
-                            "default": "0"
-                        },
-                        "depa_id": {
-                            "type": "default",
-                            "int": "max@1",
-                            "default": "0"
-                        }
-                    }
-                },
-                "arr": {
-                    "type": "array",
-                    "array": {
+                "type": "object",
+                "string": "",
+                "object": {
+                    "current_page": {
                         "type": "default",
-                        "default": "5454"
+                        "default": "1"
+                    },
+                    "page_size": {
+                        "type": "default",
+                        "default": "10"
+                    },
+                    "condition": {
+                        "type": "object",
+                        "object": {
+                            "keword": {
+                                "type": "default",
+                                "string": "max@10",
+                                "default": "0"
+                            },
+                            "comp_id": {
+                                "type": "default",
+                                "int": "max@1",
+                                "default": "0"
+                            },
+                            "depa_id": {
+                                "type": "default",
+                                "int": "max@1",
+                                "default": "0"
+                            }
+                        }
+                    },
+                    "arr": {
+                        "type": "array",
+                        "array": {
+                            "type": "int",
+                            "default": "5454",
+                            "int": ""
+                        }
                     }
                 }
             },

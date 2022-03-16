@@ -39,7 +39,29 @@ func HeaderParse(h map[string]interface{}, deep int) (header map[string]string) 
 	return
 }
 
-func ParamParse(p map[string]interface{}, deep int) (param map[string]interface{}) {
+func ParamParse(format map[string]interface{}, deep int) interface{} {
+	if len(format) < 1 {
+		return nil
+	}
+	var param interface{}
+	switch format["type"].(string) {
+	case "default":
+		param = format["default"].(string)
+	case "string":
+		param = ParseString(format["string"].(string))
+	case "int":
+		param = ParseInt(format["int"].(string))
+	case "array":
+		param = ParamParse2(format["array"].(map[string]interface{}), deep)
+	case "object":
+		param = ParamParse2(format["object"].(map[string]interface{}), deep)
+	default:
+		panic("未知数据类型：" + format["type"].(string))
+	}
+	return param
+}
+
+func ParamParse2(p map[string]interface{}, deep int) (param map[string]interface{}) {
 	if len(p) < 1 {
 		return
 	}
@@ -52,7 +74,7 @@ func ParamParse(p map[string]interface{}, deep int) (param map[string]interface{
 				case "default":
 					param[pk] = tmp["default"]
 				case "object":
-					param[pk] = ParamParse(tmp["object"].(map[string]interface{}), deep+1)
+					param[pk] = ParamParse2(tmp["object"].(map[string]interface{}), deep+1)
 				case "array":
 					param[pk] = ParseArray(tmp["array"].(map[string]interface{}), deep+1)
 				// case "objectjson":
@@ -119,7 +141,7 @@ func ResultParse(format map[string]interface{}, data interface{}, deep int) inte
 		}
 		resData = ResultParse2(format, parseData.(map[string]interface{}), deep)
 	case "object":
-		if dataType != "[]interface{}" {
+		if dataType != "map[string]interface{}" {
 			errJson := json.Unmarshal([]byte(data.(string)), &parseData)
 			if errJson != nil {
 				panic(errJson.Error())
@@ -241,7 +263,7 @@ func ParseArray(obj map[string]interface{}, deep int) interface{} {
 	arr2 := make([]interface{}, len)
 	if len > 0 {
 		for ak := range arr2 {
-			arr := ParamParse(obj[obj["type"].(string)].(map[string]interface{}), deep)
+			arr := ParamParse(obj, deep+1)
 			arr2[ak] = arr
 		}
 	}

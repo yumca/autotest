@@ -7,6 +7,7 @@ import (
 	"flag"
 	"fmt"
 	"strconv"
+	"strings"
 )
 
 var ctx context.Context
@@ -49,20 +50,28 @@ func main() {
 		get := library.ParamParse(p_param["get"].(map[string]interface{}), 1)
 		getString := ""
 		if get != nil {
-			for gk, gv := range get {
-				switch gv.(type) {
-				case string:
-					getString += gk + "=" + gv.(string)
-				case int:
-					getString += gk + "=" + strconv.Itoa(gv.(int))
-				case map[string]interface{}:
-					jsonData, err := json.Marshal(gv)
-					if err != nil {
-						panic(err.Error())
+			dataType := strings.Replace(fmt.Sprintf("%T", get), " ", "", -1)
+			if dataType == "string" {
+
+			} else if dataType == "int" {
+
+			} else {
+				for gk, gv := range get.(map[string]interface{}) {
+					switch gv := gv.(type) {
+					case string:
+						getString += gk + "=" + gv
+					case int:
+						getString += gk + "=" + strconv.Itoa(gv)
+					case map[string]interface{}:
+						jsonData, err := json.Marshal(gv)
+						if err != nil {
+							panic(err.Error())
+						}
+						getString += gk + "=" + string(jsonData)
 					}
-					getString += gk + "=" + string(jsonData)
 				}
 			}
+
 		}
 		if getString != "" {
 			url = url + "?" + getString
@@ -79,8 +88,9 @@ func main() {
 		if errJson != nil {
 			panic(errJson.Error())
 		}
-		t := fmt.Sprintf("%#v", respData)
-		fmt.Println(t)
+		fmt.Sprintf("%#v", respData)
+		// t := fmt.Sprintf("%#v", respData)
+		// fmt.Println(t)
 		// library.ResultParse(pv.Result, respData)
 		// result :=
 		// p_result := pv.Result.(map[string]interface{})
