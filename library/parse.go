@@ -166,33 +166,38 @@ func ResultParse2(format, formatdata map[string]interface{}, deep int) (result m
 		tmp := pv.(map[string]interface{})
 		if _, ok := tmp["type"]; ok {
 			if _, ok := tmp[tmp["type"].(string)]; ok {
-				switch tmp["type"].(string) {
-				case "default":
-					if tmp["default"] != formatdata[pk] {
-						result[pk] = "返回数据不符合预期；返回值：" + formatdata[pk].(string) + "；预期：" + tmp["default"].(string)
-					} else {
-						result[pk] = "返回值：" + formatdata[pk].(string) + "；预期：" + tmp["default"].(string)
+				if _, ok := formatdata[pk]; ok {
+					switch tmp["type"].(string) {
+					case "default":
+						if tmp["default"] != formatdata[pk] {
+							result[pk] = "返回数据不符合预期；返回值：" + formatdata[pk].(string) + "；预期：" + tmp["default"].(string)
+						} else {
+							result[pk] = "返回值：" + formatdata[pk].(string) + "；预期：" + tmp["default"].(string)
+						}
+					case "object":
+						result[pk] = ResultParse2(tmp["object"].(map[string]interface{}), formatdata[pk].(map[string]interface{}), deep+1)
+					case "array":
+						result[pk] = ResultParse2(tmp["array"].(map[string]interface{}), formatdata[pk].(map[string]interface{}), deep+1)
+					// case "objectjson":
+					// 	param[pk] = ParamParse(tmp)
+					// case "arrayjson":
+					// 	param[pk] = ParamParse(tmp)
+					case "string":
+						result[pk] = ResultParseString(tmp["string"].(string), formatdata[pk].(string))
+					case "int":
+						result[pk] = ResultParseString(tmp["string"].(string), formatdata[pk].(string))
+					// case "datetime":
+					// 	result[pk] = ParseDatetime(tmp["datetime"].(string))
+					// case "timestamp":
+					// 	result[pk] = ResultParseString(tmp["string"].(string), formatdata[pk].(string))
+					// 	result[pk] = int(time.Now().Unix())
+					default:
+						panic("field：" + pk + ",错误的type：" + tmp["type"].(string))
 					}
-				case "object":
-					result[pk] = ResultParse2(tmp["object"].(map[string]interface{}), formatdata[pk].(map[string]interface{}), deep+1)
-				case "array":
-					result[pk] = ResultParse2(tmp["array"].(map[string]interface{}), formatdata[pk].(map[string]interface{}), deep+1)
-				// case "objectjson":
-				// 	param[pk] = ParamParse(tmp)
-				// case "arrayjson":
-				// 	param[pk] = ParamParse(tmp)
-				case "string":
-					result[pk] = ResultParseString(tmp["string"].(string), formatdata[pk].(string))
-				case "int":
-					result[pk] = ResultParseString(tmp["string"].(string), formatdata[pk].(string))
-				// case "datetime":
-				// 	result[pk] = ParseDatetime(tmp["datetime"].(string))
-				// case "timestamp":
-				// 	result[pk] = ResultParseString(tmp["string"].(string), formatdata[pk].(string))
-				// 	result[pk] = int(time.Now().Unix())
-				default:
-					panic("field：" + pk + ",错误的type：" + tmp["type"].(string))
+				} else {
+					result[pk] = "返回数据不符合预期；预期：" + tmp["default"].(string)
 				}
+
 			}
 		}
 		// if _, ok := tmp[tmp["type"]]; ok {

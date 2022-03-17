@@ -62,24 +62,25 @@
             "type": "object",
             "object": {
                 "code": {
-                    "type": "default|object|array|objectjson|arrayjson|string#len@10#max@10|int#len@5|datetime#Y-m-d H:i:s|timestamp"
+                    "type": "string",
+                    "string": "max@10"
                 },
                 "message": {
-                    "type": "default|object|array|objectjson|arrayjson|string#len@10#max@10|int#len@5|datetime#Y-m-d H:i:s|timestamp"
+                    "type": "string",
+                    "string": "max@10"
                 },
                 "time": {
-                    "type": "default|object|array|objectjson|arrayjson|string#len@10#max@10|int#len@5|datetime#Y-m-d H:i:s|timestamp"
+                    "type": "string",
+                    "string": "max@10"
                 },
                 "data": {
-                    "type": "default|object|array|objectjson|arrayjson|string#len@10#max@10|int#len@5|datetime#Y-m-d H:i:s|timestamp",
+                    "type": "array",
                     "array": {
-                        "type": "default|object|array|objectjson|arrayjson|string#len@10#max@10|int#len@5|datetime#Y-m-d H:i:s|timestamp",
-                        "a": {
-                            "type": "default|object|array|objectjson|arrayjson|string#len@10#max@10|int#len@5|datetime#Y-m-d H:i:s|timestamp",
-                            "object": {
-                                "b": {
-                                    "type": "default|object|array|objectjson|arrayjson|string#len@10#max@10|int#len@5|datetime#Y-m-d H:i:s|timestamp"
-                                }
+                        "type": "object",
+                        "object": {
+                            "types": {
+                                "type": "string",
+                                "string": "max@10"
                             }
                         }
                     }

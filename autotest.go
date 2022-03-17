@@ -91,9 +91,8 @@ func main() {
 		fmt.Sprintf("%#v", respData)
 		// t := fmt.Sprintf("%#v", respData)
 		// fmt.Println(t)
-		// library.ResultParse(pv.Result, respData)
-		// result :=
-		// p_result := pv.Result.(map[string]interface{})
-		// result := library.ParamParse(p_header, 1)
+		p_result := pv.Result.(map[string]interface{})
+		result := library.ResultParse(p_result, respData, 1)
+		fmt.Println(result)
 	}
 }
